@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "check": "node check-connections.js",
-    "start": "node check-connections.js"
+    "start": "node check-connections.js",
+    "cost": "node cost-calculator.js"
   },
   "keywords": [
     "IA",
