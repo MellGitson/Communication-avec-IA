@@ -1,0 +1,22 @@
+{
+  "name": "communication-avec-ia",
+  "version": "1.0.0",
+  "description": "Projet d'intégration avec les modèles IA générative (Mistral, Groq, HP)",
+  "main": "check-connections.js",
+  "type": "module",
+  "scripts": {
+    "check": "node check-connections.js",
+    "start": "node check-connections.js"
+  },
+  "keywords": [
+    "IA",
+    "Mistral",
+    "Groq",
+    "HP"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.3.1"
+  }
+}
