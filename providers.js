@@ -12,6 +12,7 @@ async function checkProvider(config) {
   const { name, url, key, model, format } = config;
   const startTime = Date.now();
   const timeout = 10000; // 10 secondes
+  const testPrompt = 'Quelle est la capitale de la France ?';
 
   // Verifier que la cle existe
   if (!key) {
@@ -35,17 +36,17 @@ async function checkProvider(config) {
     };
 
     if (format === 'openai') {
-      // Format OpenAI (Mistral, Groq)
+      // Format OpenAI (Mistral, Groq, HuggingFace)
       body = JSON.stringify({
         model: model,
-        messages: [{ role: 'user', content: 'test' }],
-        max_tokens: 5
+        messages: [{ role: 'user', content: testPrompt }],
+        max_tokens: 50
       });
       headers['Authorization'] = `Bearer ${key}`;
     } else if (format === 'huggingface') {
       // Format HuggingFace
       body = JSON.stringify({
-        inputs: 'test'
+        inputs: testPrompt
       });
       headers['Authorization'] = `Bearer ${key}`;
     }
@@ -61,10 +62,33 @@ async function checkProvider(config) {
     const latency = Date.now() - startTime;
 
     if (response.ok) {
+      const data = await response.json();
+      let responseText = '';
+
+      // Extraire la reponse selon le format
+      if (format === 'openai') {
+        if (data.choices && data.choices[0] && data.choices[0].message) {
+          responseText = data.choices[0].message.content.trim();
+          // Extraire juste le premier mot ou phrase cle
+          if (responseText.toLowerCase().includes('paris')) {
+            responseText = 'Paris';
+          } else {
+            // Prendre juste les premiers 20 caracteres
+            responseText = responseText.substring(0, 20);
+          }
+        }
+      } else if (format === 'huggingface') {
+        if (Array.isArray(data) && data[0] && data[0][0] && data[0][0].generated_text) {
+          responseText = data[0][0].generated_text.trim();
+          responseText = responseText.substring(0, 20);
+        }
+      }
+
       return {
         provider: name,
         status: 'OK',
-        latency
+        latency,
+        response: responseText
       };
     } else {
       let errorDetail = `HTTP ${response.status}`;
